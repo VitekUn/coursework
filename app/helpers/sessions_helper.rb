@@ -30,6 +30,11 @@ module SessionsHelper
     !current_user.nil?
   end
 
+  # Возвращает true, если заданный пользователь является текущим.
+  def current_user?(user)
+    user == current_user
+  end
+  
 # Забывает постоянную сессии.
 def forget(user)
   user.forget
