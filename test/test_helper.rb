@@ -1,30 +1,34 @@
+# frozen_string_literal: true
+
 ENV['RAILS_ENV'] ||= 'test'
-require_relative "../config/environment"
-require "rails/test_help"
+require_relative '../config/environment'
+require 'rails/test_help'
 
-class ActiveSupport::TestCase
-  fixtures :all
+module ActiveSupport
+  class TestCase
+    fixtures :all
 
-  # Возвращает true, если тестовый пользователь осуществил вход.
-  def is_logged_in?
-    !session[:user_id].nil?
-  end
-
-  # Осуществляет вход тестового пользователя
-  def log_in_as(user, options = {})
-    password    = options[:password]    || 'password'
-    remember_me = options[:remember_me] || '1'
-    if integration_test?
-      post login_path, session: { email:       user.email,
-                                  password:    password,
-                                  remember_me: remember_me }
-    else
-      session[:user_id] = user.id
+    # Returns true if the test user logged in.
+    def logged_in?
+      !session[:user_id].nil?
     end
-  end
 
-  # Возвращает true внутри интеграционных тестов
-  def integration_test?
-    defined?(post_via_redirect)
+    # Logs in the test user
+    def log_in_as(user, options = {})
+      password    = options[:password]    || 'password'
+      remember_me = options[:remember_me] || '1'
+      if integration_test?
+        post login_path, params: { session: { email: user.email,
+                                              password: password,
+                                              remember_me: remember_me } }
+      else
+        session[:user_id] = user.id
+      end
+    end
+
+    # Returns true inside integration tests
+    def integration_test?
+      defined?(post login_path)
+    end
   end
 end
