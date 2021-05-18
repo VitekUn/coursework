@@ -1,52 +1,53 @@
-module SessionsHelper
+# frozen_string_literal: true
 
-    # Осуществляет вход данного пользователя.
+# SessionsHelper
+module SessionsHelper
+  # Logs in this user.
   def log_in(user)
     session[:user_id] = user.id
   end
 
-  # Запоминает пользователя в постоянную сессию.
+  # Remembers the user in a persistent session.
   def remember(user)
     user.remember
     cookies.permanent.signed[:user_id] = user.id
     cookies.permanent[:remember_token] = user.remember_token
   end
 
-  # Возвращает пользователя, соответствующего remember-токену в куки.
+  # Returns the user corresponding to the remember token in the cookie.
   def current_user
     if (user_id = session[:user_id])
       @current_user ||= User.find_by(id: user_id)
     elsif (user_id = cookies.signed[:user_id])
       user = User.find_by(id: user_id)
-      if user && user.authenticated?(cookies[:remember_token])
+      if user&.authenticated?(cookies[:remember_token])
         log_in user
         @current_user = user
       end
     end
   end
 
-  # Возвращает true, если пользователь вошел, иначе false.
+  # Returns true if the user is logged in, otherwise false.
   def logged_in?
     !current_user.nil?
   end
 
-  # Возвращает true, если заданный пользователь является текущим.
+  # Returns true if the specified user is the current user.
   def current_user?(user)
     user == current_user
   end
-  
-# Забывает постоянную сессии.
-def forget(user)
-  user.forget
-  cookies.delete(:user_id)
-  cookies.delete(:remember_token)
-end
 
-# Осуществляет выход текущего пользователя.
-def log_out
-  forget(current_user)
-  session.delete(:user_id)
-  @current_user = nil
-end
-
+  # Forgets the session constant.
+  def forget(user)
+    user.forget
+    cookies.delete(:user_id)
+    cookies.delete(:remember_token)
   end
+
+  # Logs out the current user.
+  def log_out
+    forget(current_user)
+    session.delete(:user_id)
+    @current_user = nil
+  end
+end
